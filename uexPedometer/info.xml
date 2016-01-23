@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<uexplugins>
+    <plugin 
+        uexName="uexPedometer" version="3.0.2.2" build = "2">
+        <info>2:改善了内存回收，修复了程序崩溃的问题；将通知栏更新写入主线程中；通知栏图标使用应用图标</info>
+        <build>1:修复了隔天数据累加的数据存储错误</build>
+        <build>0:手机后台记步插件</build>
+    </plugin>
+</uexplugins>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<uexplugins>
+
+    <plugin
+        className="org.zywx.wbpalmstar.plugin.uexpedometer.EUExPedometer"
+        uexName="uexPedometer" >
+        <method name="startStepService" />
+        <method name="stopStepService" />
+        <method name="queryStepToday" />
+        <method name="queryStepHistory" />
+        <!-- <method name="changeSensitivity" /> -->
+    </plugin>
+
+</uexplugins>
