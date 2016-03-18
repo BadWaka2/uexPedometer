@@ -7,6 +7,7 @@ import org.zywx.wbpalmstar.plugin.uexpedometer.SQLite.PedometerSQLiteHelper;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
@@ -44,24 +45,25 @@ public class StepService extends Service {
 	private static final String NOTIFICATION_STEP_SERVICE_TITLE = EUExUtil.getString("plugin_pedometer_step_number");// 通知标题
 	private static final String NOTIFICATION_STEP_SERVICE_CONTENT = EUExUtil.getString("plugin_pedometer_step_calorie");// 通知内容
 	private static final float SCALE_STEP_CALORIES = 43.22f;
+	private NotificationManager mNotificationManager;
 	private Notification.Builder builder;
 	private Notification mNotification;
 	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler() {// handler用来更新通知
-		@SuppressWarnings("deprecation")
 		@SuppressLint("NewApi")
 		public void handleMessage(android.os.Message msg) {
-			int step = (Integer) msg.obj;
-			builder.setContentTitle(step + NOTIFICATION_STEP_SERVICE_TITLE);
-			builder.setContentText(
-					String.format("%.1f", (step * SCALE_STEP_CALORIES) / 1000) + NOTIFICATION_STEP_SERVICE_CONTENT);
-			if (Build.VERSION.SDK_INT >= 16) {
-				mNotification = builder.build();
-			} else {
-				mNotification = builder.getNotification();
-			}
-			mNotification.flags = Notification.FLAG_NO_CLEAR;// 在点击通知后，通知并不会消失
-			startForeground(NOTIFICATION_STEP_SERVICE, mNotification);// 在通知栏添加前台服务
+			// int step = (Integer) msg.obj;
+			// builder.setContentTitle(step + NOTIFICATION_STEP_SERVICE_TITLE);
+			// builder.setContentText(
+			// String.format("%.1f", (step * SCALE_STEP_CALORIES) / 1000) +
+			// NOTIFICATION_STEP_SERVICE_CONTENT);
+			// if (Build.VERSION.SDK_INT >= 16) {
+			// mNotification = builder.build();
+			// } else {
+			// mNotification = builder.getNotification();
+			// }
+			// startForeground(NOTIFICATION_STEP_SERVICE, mNotification);//
+			// 在通知栏添加前台服务
 		};
 	};
 	// 线程
@@ -86,6 +88,8 @@ public class StepService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+
+		mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 	}
 
 	/**
@@ -136,14 +140,15 @@ public class StepService extends Service {
 		builder.setContentText(String.format("%.1f", (SELECTED_STEP * SCALE_STEP_CALORIES) / 1000)
 				+ NOTIFICATION_STEP_SERVICE_CONTENT);
 		builder.setTicker(NOTIFICATION_STEP_SERVICE_TICKER);
+		builder.setAutoCancel(true);
 		builder.setSmallIcon(getApplicationInfo().icon);
 		if (Build.VERSION.SDK_INT >= 16) {
 			mNotification = builder.build();
 		} else {
 			mNotification = builder.getNotification();
 		}
-		mNotification.flags = Notification.FLAG_NO_CLEAR;// 在点击通知后，通知并不会消失
-		startForeground(NOTIFICATION_STEP_SERVICE, mNotification);// 在通知栏添加前台服务
+		mNotification.flags = Notification.FLAG_AUTO_CANCEL;// 在点击通知后，通知并不会消失
+		mNotificationManager.notify(NOTIFICATION_STEP_SERVICE, mNotification);
 	}
 
 	/**
