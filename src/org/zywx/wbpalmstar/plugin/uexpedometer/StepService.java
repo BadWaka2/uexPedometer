@@ -8,8 +8,12 @@ import org.zywx.wbpalmstar.plugin.uexpedometer.SQLite.PedometerSQLiteHelper;
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.sqlite.SQLiteDatabase;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
@@ -26,7 +30,9 @@ import android.util.Log;
  *
  */
 public class StepService extends Service {
+
 	private static final String TAG = "StepService";
+
 	public static boolean serviceFlag = false;// 服务开关标志
 	public static boolean stableWalkStatusFlag = false;// 稳定走路状态标志，为true的话SELECTED_STEP=CURRENT_SETP
 	public static int SELECTED_STEP = 0;// 筛选过的步数
@@ -34,10 +40,12 @@ public class StepService extends Service {
 	private int stepHistory = -1;
 	private static final int MIN_STEP_IN_10SECONDS = 10;// 10s内最小步数，人类的一步在0.2s到2s之间
 	private static final int MAX_STEP_IN_10SECONDS = 50;// 10s内最大步数
+
 	// 传感器
 	private SensorManager mSensorManager;
 	private Sensor mSensor, mStepDetectorSensor, mStepCountSensor;
 	private StepDetector mStepDetector;// 信号监听记步类
+
 	// 通知
 	private static final int NOTIFICATION_STEP_SERVICE = 1;// 通知标记
 	private static final String NOTIFICATION_STEP_SERVICE_TICKER = EUExUtil
@@ -50,25 +58,41 @@ public class StepService extends Service {
 	private Notification mNotification;
 	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler() {// handler用来更新通知
-		@SuppressLint("NewApi")
 		public void handleMessage(android.os.Message msg) {
-			// int step = (Integer) msg.obj;
-			// builder.setContentTitle(step + NOTIFICATION_STEP_SERVICE_TITLE);
-			// builder.setContentText(
-			// String.format("%.1f", (step * SCALE_STEP_CALORIES) / 1000) +
-			// NOTIFICATION_STEP_SERVICE_CONTENT);
-			// if (Build.VERSION.SDK_INT >= 16) {
-			// mNotification = builder.build();
-			// } else {
-			// mNotification = builder.getNotification();
-			// }
-			// startForeground(NOTIFICATION_STEP_SERVICE, mNotification);//
-			// 在通知栏添加前台服务
+
+			if (mUpdateNotiSwitch == false) {
+				return;
+			}
+
+			int step = (Integer) msg.obj;
+			showNotification(step);
 		};
 	};
+
+	// 监听通知栏被删除
+	private static final String ACTION_NOTIFICATION_DELETE = "org.zywx.wbpalmstar.plugin.uexpedometer.NOTIFICATION_DELETE";// 通知栏被删除Action
+	private boolean mUpdateNotiSwitch = true;// 更新通知栏开关，为true更新通知栏，为false不更新
+	private BroadcastReceiver mNotiDelReceiver = new BroadcastReceiver() {// 广播接收器，用来接收通知被删除的广播
+		@Override
+		public void onReceive(Context context, Intent intent) {
+
+			if (intent == null || context == null) {
+				return;
+			}
+
+			if (intent.getAction().equals(ACTION_NOTIFICATION_DELETE)) {// 如果是通知被删除的广播
+
+				mNotificationManager.cancel(NOTIFICATION_STEP_SERVICE);// 关闭通知
+				mUpdateNotiSwitch = false;// 通知栏开关值为false
+			}
+
+		}
+	};
+
 	// 线程
 	private Thread selectStepThread;// 此线程用来筛选步数
 	private Thread updateStepThread;// 此线程用来更新通知栏的步数
+
 	// 数据库操作类
 	private int timeCounter = 0;// 用来计时间，过1s加1，到5s变为0，5s一循环，5s更新一次数据库
 	private PedometerSQLiteHelper dbHelper;
@@ -88,7 +112,6 @@ public class StepService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-
 		mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 	}
 
@@ -97,7 +120,14 @@ public class StepService extends Service {
 	 */
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
+
 		serviceFlag = true;// 服务开启标志置为true
+		mUpdateNotiSwitch = true;// 更新通知栏标志值为true
+
+		// 注册广播,监听通知栏被删除的广播
+		IntentFilter intentFilter = new IntentFilter(ACTION_NOTIFICATION_DELETE);
+		registerReceiver(mNotiDelReceiver, intentFilter);
+
 		// 初始化数据库
 		dbHelper = new PedometerSQLiteHelper(StepService.this, "Pedometer.db", null, 1);
 		db = dbHelper.getWritableDatabase();// 得到数据库实例
@@ -109,8 +139,10 @@ public class StepService extends Service {
 			StepDetector.CURRENT_SETP = step;
 			SELECTED_STEP = step;
 		}
-		showNotification();// 在通知栏显示
+
+		showNotification(SELECTED_STEP);// 在通知栏显示
 		startStepDetector();// 开始监听步数
+
 		return START_STICKY;// 粘性服务，在被kill后尝试自动开启
 	}
 
@@ -120,8 +152,10 @@ public class StepService extends Service {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		serviceFlag = false;// 服务开启标志置为false,停止筛选线程和更新线程
-		stopForeground(true);// 在通知栏停止前台服务
+
+		serviceFlag = false;// 服务开启标志置为false,停止筛选线程和更新线程]
+		unregisterReceiver(mNotiDelReceiver);// 取消注册广播
+
 		if (mStepDetector != null) {// 如果记步类对象依然存在
 			mSensorManager.unregisterListener(mStepDetector);// 取消监听
 			mStepDetector = null;// 将记步类对象置为null
@@ -131,23 +165,28 @@ public class StepService extends Service {
 	/**
 	 * 显示通知
 	 */
-	@SuppressLint("NewApi")
 	@SuppressWarnings("deprecation")
-	private void showNotification() {
+	@SuppressLint("NewApi")
+	private void showNotification(int step) {
+
 		builder = new Notification.Builder(this);// 使用Notification.Builder创建Notification
-		// 将通知栏设置为自定义View
-		builder.setContentTitle(SELECTED_STEP + NOTIFICATION_STEP_SERVICE_TITLE);
-		builder.setContentText(String.format("%.1f", (SELECTED_STEP * SCALE_STEP_CALORIES) / 1000)
-				+ NOTIFICATION_STEP_SERVICE_CONTENT);
+
+		builder.setContentTitle(step + NOTIFICATION_STEP_SERVICE_TITLE);
+		builder.setContentText(
+				String.format("%.1f", (step * SCALE_STEP_CALORIES) / 1000) + NOTIFICATION_STEP_SERVICE_CONTENT);
 		builder.setTicker(NOTIFICATION_STEP_SERVICE_TICKER);
-		builder.setAutoCancel(true);
 		builder.setSmallIcon(getApplicationInfo().icon);
+
+		// 监听通知栏被删除
+		Intent deleteIntent = new Intent();
+		deleteIntent.setAction(ACTION_NOTIFICATION_DELETE);
+		builder.setDeleteIntent(PendingIntent.getBroadcast(this, NOTIFICATION_STEP_SERVICE, deleteIntent, 0));
+
 		if (Build.VERSION.SDK_INT >= 16) {
 			mNotification = builder.build();
 		} else {
 			mNotification = builder.getNotification();
 		}
-		mNotification.flags = Notification.FLAG_AUTO_CANCEL;// 在点击通知后，通知并不会消失
 		mNotificationManager.notify(NOTIFICATION_STEP_SERVICE, mNotification);
 	}
 
