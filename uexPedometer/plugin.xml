@@ -3,14 +3,10 @@
 
     <plugin
         className="org.zywx.wbpalmstar.plugin.uexpedometer.EUExPedometer"
-        uexName="uexPedometer" version="3.0.2.2" build="2">
-
+        uexName="uexPedometer" >
         <method name="startStepService" />
-
         <method name="stopStepService" />
-
         <method name="queryStepToday" />
-
         <method name="queryStepHistory" />
     </plugin>
 

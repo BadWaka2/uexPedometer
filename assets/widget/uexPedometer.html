@@ -1,0 +1,66 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<link rel="stylesheet" type="text/css" href="css/index.css">
+
+<script type="text/javascript">
+
+	// 回调
+	window.uexOnload = function(type) {
+		
+		// 开始后台计步服务回调
+		uexPedometer.cbStartStepService = function(opCode,dataType,data) {
+			alert("------cbStartStepService------\n" + data);
+		}
+		
+		// 关闭后台计步服务回调
+		uexPedometer.cbStopStepService = function(opCode,dataType,data) {
+			alert("------cbStopStepService------\n" + data);
+		}
+		
+		// 查询当天步数回调
+		uexPedometer.cbQueryStepToday = function(opCode,dataType,data) {
+			alert("------cbQueryStepToday------\n" + data);
+		}
+		
+		// 查询历史步数回调
+		uexPedometer.cbQueryStepHistory = function(opCode,dataType,data) {
+			alert("------cbQueryStepHistory------\n" + data);
+		}
+	}
+	
+	// 查询历史步数
+	function queryStepHistory() {
+		var date1 = "2016-02-28";
+		var date2 = "2016-05-18";
+		uexPedometer.queryStepHistory(date1,date2);
+	}
+	
+</script>
+</head>
+
+<body>
+	<div class="tit">uexPDFReader</div>
+	<div class="conbor">
+		<div class="consj">
+		
+			<span>startStepService</span>
+			<input class="btn" type="button" value="开启后台计步服务" onclick="uexPedometer.startStepService()" /><br /> <br />
+			
+			<span>stopStepService</span>
+			<input class="btn" type="button" value="关闭后台计步服务" onclick="uexPedometer.stopStepService()" /><br /> <br />
+			
+			<span>queryStepToday</span>
+			<input class="btn" type="button" value="查询当天步数" onclick = "uexPedometer.queryStepToday()"/><br /> <br />
+		
+			<span>queryStepHistory</span>
+			<input class="btn" type="button" value="查询历史步数" onclick = "queryStepHistory()"/><br /> <br />
+		
+		
+		</div>
+	</div>
+</body>
+</html>

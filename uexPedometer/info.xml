@@ -1,8 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <uexplugins>
     <plugin 
-        uexName="uexPedometer" version="3.0.4" build = "4">
-        <info>4:优化了通知栏的显示方式，修复了通知栏中的步数显示不会改变，计步迟钝的问题</info>
+        uexName="uexPedometer" version="3.0.5" build = "5">
+        <info>5:扩展了queryStepHistory接口的参数，可以传入两个日期获得之间的总步数</info>
+        <build>4:优化了通知栏的显示方式，修复了通知栏中的步数显示不会改变，计步迟钝的问题</build>
         <build>3:修改了通知，使其可以被右滑删除；调用startStepService方法即可重新弹出通知</build>
         <build>2:改善了内存回收，修复了程序崩溃的问题；将通知栏更新写入主线程中；通知栏图标使用应用图标</build>
         <build>1:修复了隔天数据累加的数据存储错误</build>

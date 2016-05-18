@@ -18,7 +18,7 @@ public class StepDetector implements SensorEventListener {
 	public static int CURRENT_SETP = 0;
 	public static int STEP_COUNT = 0;
 	public static int STEP_DETECTOR = 0;
-	public static float SENSITIVITY = EUExPedometer.sensitivity; // SENSITIVITY灵敏度,这玩意很重(坑)要(爹)！灵敏度为1的时候轻轻晃一下就计步了，灵敏度为10时得狠狠地晃才行。。。。。
+	public static float SENSITIVITY = 2.0f; // SENSITIVITY灵敏度,这玩意很重(坑)要(爹)！灵敏度为1的时候轻轻晃一下就计步了，灵敏度为10时得狠狠地晃才行。。。。。
 	private float mLastValues[] = new float[3 * 2];
 	private float mScale[] = new float[2];
 	private float mYOffset;
@@ -63,8 +63,8 @@ public class StepDetector implements SensorEventListener {
 			}
 			// 如果是加速度传感器，则使用自己写的步数判定算法
 			else if (sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-				Log.i(TAG, "CURRENT_SETP----->"+CURRENT_SETP);
-				Log.i(TAG, "SENSITIVITY----->"+SENSITIVITY);
+				Log.i(TAG, "CURRENT_SETP----->" + CURRENT_SETP);
+				Log.i(TAG, "SENSITIVITY----->" + SENSITIVITY);
 				float vSum = 0;
 				for (int i = 0; i < 3; i++) {
 					final float v = mYOffset + event.values[i] * mScale[1];

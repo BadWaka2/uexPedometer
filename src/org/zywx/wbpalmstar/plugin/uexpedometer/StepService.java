@@ -3,7 +3,7 @@ package org.zywx.wbpalmstar.plugin.uexpedometer;
 import java.sql.Date;
 
 import org.zywx.wbpalmstar.engine.universalex.EUExUtil;
-import org.zywx.wbpalmstar.plugin.uexpedometer.SQLite.PedometerSQLiteHelper;
+import org.zywx.wbpalmstar.plugin.uexpedometer.db.PedometerSQLiteHelper;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -131,7 +131,7 @@ public class StepService extends Service {
 		// 初始化数据库
 		dbHelper = new PedometerSQLiteHelper(StepService.this, "Pedometer.db", null, 1);
 		db = dbHelper.getWritableDatabase();// 得到数据库实例
-		int step = dbHelper.queryData(db, new Date(System.currentTimeMillis()).toString());
+		int step = dbHelper.queryStep(db, new Date(System.currentTimeMillis()).toString());
 		if (step == -1) {
 			dbHelper.insertData(db, 0);// 如果没有今天的数据，插入
 		} else {
@@ -314,7 +314,7 @@ public class StepService extends Service {
 						e.printStackTrace();
 					}
 					// 获得今天的步数
-					int step = dbHelper.queryData(db, new Date(System.currentTimeMillis()).toString());
+					int step = dbHelper.queryStep(db, new Date(System.currentTimeMillis()).toString());
 					// 如果stepHistory还未初始化（即等于-1），将系统总步数赋给它
 					if (stepHistory == -1) {
 						stepHistory = StepDetector.STEP_COUNT
