@@ -48,8 +48,7 @@ public class StepService extends Service {
 
 	// 通知
 	private static final int NOTIFICATION_STEP_SERVICE = 1;// 通知标记
-	private static final String NOTIFICATION_STEP_SERVICE_TICKER = EUExUtil
-			.getString("plugin_pedometer_step_service_ticker");// 通知ticker，在通知刚生成时在手机最上方弹出的一闪而过的提示
+	private static final String NOTIFICATION_STEP_SERVICE_TICKER = EUExUtil.getString("plugin_pedometer_step_service_ticker");// 通知ticker，在通知刚生成时在手机最上方弹出的一闪而过的提示
 	private static final String NOTIFICATION_STEP_SERVICE_TITLE = EUExUtil.getString("plugin_pedometer_step_number");// 通知标题
 	private static final String NOTIFICATION_STEP_SERVICE_CONTENT = EUExUtil.getString("plugin_pedometer_step_calorie");// 通知内容
 	private static final float SCALE_STEP_CALORIES = 43.22f;
@@ -129,7 +128,7 @@ public class StepService extends Service {
 		registerReceiver(mNotiDelReceiver, intentFilter);
 
 		// 初始化数据库
-		dbHelper = new PedometerSQLiteHelper(StepService.this, "Pedometer.db", null, 1);
+		dbHelper = new PedometerSQLiteHelper(StepService.this, Constant.DB_NAME, null, 1);
 		db = dbHelper.getWritableDatabase();// 得到数据库实例
 		int step = dbHelper.queryStep(db, new Date(System.currentTimeMillis()).toString());
 		if (step == -1) {
@@ -172,8 +171,7 @@ public class StepService extends Service {
 		builder = new Notification.Builder(this);// 使用Notification.Builder创建Notification
 
 		builder.setContentTitle(step + NOTIFICATION_STEP_SERVICE_TITLE);
-		builder.setContentText(
-				String.format("%.1f", (step * SCALE_STEP_CALORIES) / 1000) + NOTIFICATION_STEP_SERVICE_CONTENT);
+		builder.setContentText(String.format("%.1f", (step * SCALE_STEP_CALORIES) / 1000) + NOTIFICATION_STEP_SERVICE_CONTENT);
 		builder.setTicker(NOTIFICATION_STEP_SERVICE_TICKER);
 		builder.setSmallIcon(getApplicationInfo().icon);
 

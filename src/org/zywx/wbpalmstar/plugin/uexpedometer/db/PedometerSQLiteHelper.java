@@ -47,6 +47,7 @@ public class PedometerSQLiteHelper extends SQLiteOpenHelper {
 
 		db.execSQL(sql);// 创建步数表
 		MLog.getIns().i("创建数据表成功");
+
 	}
 
 	/**
@@ -116,11 +117,15 @@ public class PedometerSQLiteHelper extends SQLiteOpenHelper {
 		Long endTime = end.getTimeInMillis();
 
 		Long oneDay = 1000 * 60 * 60 * 24l;
-		endTime = endTime - oneDay;// 输入2016-05-17,2016-05-18，返回的数据应该是只有17号的步数，所以需要对结束时间减去一天
+		endTime = endTime - oneDay + 1;// 输入2016-05-17,2016-05-18，返回的数据应该是只有17号的步数，所以需要对结束时间减去一天;+1是为了当两天只间隔一天时endTime要大于startTime
 		MLog.getIns().i("endTime = " + endTime);
 
 		Cursor cursor = null;
 		Long time = startTime;
+
+		MLog.getIns().i("startTime = " + startTime);
+		MLog.getIns().i("endTime = " + endTime);
+
 		while (time < endTime) {
 			Date date = new Date(time);
 			DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
@@ -134,7 +139,9 @@ public class PedometerSQLiteHelper extends SQLiteOpenHelper {
 			time += oneDay;
 			MLog.getIns().i("time = " + time + " endTime = " + endTime);
 		}
-		cursor.close();
+		if (cursor != null) {
+			cursor.close();
+		}
 		return totalStep;
 	}
 

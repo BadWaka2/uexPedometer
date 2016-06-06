@@ -11,6 +11,11 @@
 	// 回调
 	window.uexOnload = function(type) {
 		
+		// 数据库创建成功回调
+		uexPedometer.cbDBCreated = function(opCode,dataType,data) {
+			alert("------cbDBCreated------\n" + data);
+		}
+		
 		// 开始后台计步服务回调
 		uexPedometer.cbStartStepService = function(opCode,dataType,data) {
 			alert("------cbStartStepService------\n" + data);

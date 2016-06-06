@@ -1,5 +1,6 @@
-package org.zywx.wbpalmstar.plugin.uexpedometer;
+package org.zywx.wbpalmstar.plugin.uexpedometer.receivers;
 
+import org.zywx.wbpalmstar.plugin.uexpedometer.StepService;
 import org.zywx.wbpalmstar.plugin.uexpedometer.utils.MLog;
 
 import android.content.BroadcastReceiver;

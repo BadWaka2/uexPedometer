@@ -69,7 +69,7 @@
         </service>
 
         <!-- 接受开机完成广播，实现开机自启 -->
-        <receiver android:name="org.zywx.wbpalmstar.plugin.uexpedometer.BootCompleteReceiver" >
+        <receiver android:name="org.zywx.wbpalmstar.plugin.uexpedometer.receivers.BootCompleteReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>

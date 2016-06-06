@@ -90,6 +90,10 @@ public class EUExPedometer extends EUExBase {
 	 */
 	public EUExPedometer(Context context, EBrowserView browserView) {
 		super(context, browserView);
+
+		// 创建数据库
+		PedometerSQLiteHelper dbHelper = new PedometerSQLiteHelper(mContext, Constant.DB_NAME, null, 1);
+		dbHelper.getWritableDatabase();// 得到数据库实例
 	}
 
 	/**
