@@ -7,7 +7,8 @@ import org.json.JSONObject;
 import org.zywx.wbpalmstar.engine.EBrowserView;
 import org.zywx.wbpalmstar.engine.universalex.EUExBase;
 import org.zywx.wbpalmstar.engine.universalex.EUExCallback;
-import org.zywx.wbpalmstar.plugin.uexpedometer.db.PedometerSQLiteHelper;
+import org.zywx.wbpalmstar.plugin.uexpedometer.model.DBHelper;
+import org.zywx.wbpalmstar.plugin.uexpedometer.pedometer.PedometerService;
 import org.zywx.wbpalmstar.plugin.uexpedometer.utils.DateUtil;
 import org.zywx.wbpalmstar.plugin.uexpedometer.utils.MLog;
 
@@ -18,14 +19,12 @@ import android.os.Handler;
 import android.os.Message;
 
 /**
- * 计步器入口类
+ * 入口类
  * 
  * @author waka
- *
+ * @version createTime:2016年6月29日 下午2:34:10
  */
 public class EUExPedometer extends EUExBase {
-
-	// private static final String TAG = "EUExPedometer";
 
 	// 回调
 	private static final String CB_START_STEP_SERVICE = "uexPedometer.cbStartStepService";
@@ -88,18 +87,18 @@ public class EUExPedometer extends EUExBase {
 	 * @param arg0
 	 * @param arg1
 	 */
-	public EUExPedometer(Context context, EBrowserView browserView) {
-		super(context, browserView);
+	public EUExPedometer(Context arg0, EBrowserView arg1) {
+		super(arg0, arg1);
 
 		// 创建数据库
-		PedometerSQLiteHelper dbHelper = new PedometerSQLiteHelper(mContext, Constant.DB_NAME, null, 1);
+		DBHelper dbHelper = new DBHelper(mContext, Constant.DB_NAME, null, 1);
 		dbHelper.getWritableDatabase();// 得到数据库实例
 	}
 
+	@Override
 	/**
 	 * clean
 	 */
-	@Override
 	protected boolean clean() {
 		return false;
 	}
@@ -107,10 +106,11 @@ public class EUExPedometer extends EUExBase {
 	/**
 	 * 开始后台记步服务
 	 * 
-	 * @param parm
+	 * @param params
 	 */
-	public void startStepService(String[] parm) {
-		Intent intent = new Intent(mContext, StepService.class);
+	public void startStepService(String[] params) {
+		MLog.getIns().d("");
+		Intent intent = new Intent(mContext, PedometerService.class);
 		mContext.startService(intent);
 		jsCallback(CB_START_STEP_SERVICE, 0, EUExCallback.F_C_TEXT, "StepService已被开启");
 	}
@@ -120,8 +120,9 @@ public class EUExPedometer extends EUExBase {
 	 * 
 	 * @param parm
 	 */
-	public void stopStepService(String[] parm) {
-		Intent intent = new Intent(mContext, StepService.class);
+	public void stopStepService(String[] params) {
+		MLog.getIns().d("");
+		Intent intent = new Intent(mContext, PedometerService.class);
 		mContext.stopService(intent);
 		jsCallback(CB_STOP_STEP_SERVICE, 0, EUExCallback.F_C_TEXT, "StepService已被关闭");
 	}
@@ -129,14 +130,14 @@ public class EUExPedometer extends EUExBase {
 	/**
 	 * 查询今天步数
 	 * 
-	 * @param parm
+	 * @param params
 	 */
-	public void queryStepToday(String[] parm) {
+	public void queryStepToday(String[] params) {
 
 		String date = new java.sql.Date(System.currentTimeMillis()).toString();
 		MLog.getIns().i("Today" + date);
 
-		PedometerSQLiteHelper dbHelper = new PedometerSQLiteHelper(mContext, Constant.DB_NAME, null, Constant.DB_VERSION);
+		DBHelper dbHelper = new DBHelper(mContext, Constant.DB_NAME, null, Constant.DB_VERSION);
 		SQLiteDatabase db = dbHelper.getWritableDatabase();// 得到数据库实例
 		int step = dbHelper.queryStep(db, date);
 
@@ -183,7 +184,7 @@ public class EUExPedometer extends EUExBase {
 				return;
 			}
 
-			PedometerSQLiteHelper dbHelper = new PedometerSQLiteHelper(mContext, "Pedometer.db", null, Constant.DB_VERSION);
+			DBHelper dbHelper = new DBHelper(mContext, Constant.DB_NAME, null, Constant.DB_VERSION);
 			SQLiteDatabase db = dbHelper.getWritableDatabase();// 得到数据库实例
 			int step = dbHelper.queryStep(db, date);
 
@@ -215,7 +216,7 @@ public class EUExPedometer extends EUExBase {
 				return;
 			}
 
-			final PedometerSQLiteHelper dbHelper = new PedometerSQLiteHelper(mContext, "Pedometer.db", null, Constant.DB_VERSION);
+			final DBHelper dbHelper = new DBHelper(mContext, Constant.DB_NAME, null, Constant.DB_VERSION);
 			final SQLiteDatabase db = dbHelper.getWritableDatabase();// 得到数据库实例
 			new Thread() {
 				public void run() {
@@ -228,6 +229,7 @@ public class EUExPedometer extends EUExBase {
 			}.start();
 
 		}
+
 	}
 
 	/**
@@ -247,5 +249,4 @@ public class EUExPedometer extends EUExBase {
 			MLog.getIns().e(e);
 		}
 	}
-
 }

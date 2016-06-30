@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.zywx.wbpalmstar.widgetone.uex"
+    package="org.zywx.wbpalmstar.widgetone.uexPedometer"
     android:installLocation="internalOnly"
     android:versionCode="100"
     android:versionName="3.1.0" >
@@ -62,21 +62,15 @@
             </intent-filter>
         </receiver>
 
-        <!-- 后台记步服务 -->
+        <!-- uexPedometer -->
+        <!-- 后台计步服务 -->
         <service
-            android:name="org.zywx.wbpalmstar.plugin.uexpedometer.StepService"
-            android:process=":backgroundService" >
+            android:name="org.zywx.wbpalmstar.plugin.uexpedometer.pedometer.PedometerService"
+            android:process=":background_pedometer" >
         </service>
-
-        <!-- 接受开机完成广播，实现开机自启 -->
-        <receiver android:name="org.zywx.wbpalmstar.plugin.uexpedometer.receivers.BootCompleteReceiver" >
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
     </application>
 
-    <uses-sdk android:minSdkVersion="11" />
+    <uses-sdk android:minSdkVersion="14" />
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -88,6 +82,9 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- uexNFC -->
+    <uses-permission android:name="android.permission.NFC" />
 
     <supports-screens
         android:anyDensity="true"

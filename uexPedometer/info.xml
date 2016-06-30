@@ -1,8 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <uexplugins>
     <plugin 
-        uexName="uexPedometer" version="3.0.7" build = "7">
-        <info>7:由开始计步服务才创建数据库改为EUExBase构造时就创建数据库</info>
+        uexName="uexPedometer" version="3.0.9" build = "9">
+        <info>9:修复高级传感器计步问题；重构代码，不使用线程，使用即时回调监听步数数据</info>
+        <build>8:统一使用加速度传感器进行计步</build>
+        <build>7:由开始计步服务才创建数据库改为EUExBase构造时就创建数据库</build>
         <build>6:修复了查询历史步数时开始天数等于或大于结束天数时程序崩溃的问题</build>
         <build>5:扩展了queryStepHistory接口的参数，可以传入两个日期获得之间的总步数</build>
         <build>4:优化了通知栏的显示方式，修复了通知栏中的步数显示不会改变，计步迟钝的问题</build>
